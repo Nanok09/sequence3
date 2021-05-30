@@ -22,5 +22,10 @@
             android:defaultValue=""
             android:key="passe"
             android:title="Passe" />
+        <EditTextPreference
+            android:defaultValue='{"login": "Macud", "mesListeToDo": [{"titreListToDo": "todolist1", "lesItems": [{"description": "", "fait": false}]}, {"titreListToDo": "todolist2", "lesItems": [{"description": "Trop cool", "fait": true}, {"description": "Moins bien", "fait": true}]}]}'
+            android:key="profilList"
+            android:title="Listes" />
     </PreferenceCategory>
+
 </PreferenceScreen>
