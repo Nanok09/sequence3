@@ -4,16 +4,22 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 
 class ChoixListActivity : AppCompatActivity() {
+
+    var dataSet: MutableList<String> = mutableListOf("Liste 1","Liste 2", "Liste 3")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.choix_list_layout)
-        val bdl = this.intent.extras
-        val chaine_carac = bdl?.getString("string")
 
-        alerter(chaine_carac)
+        val recyclerView: RecyclerView = findViewById(R.id.recycler_view)
+        val adapter: RecyclerViewAdapter = RecyclerViewAdapter(dataSet)
+        recyclerView.adapter = adapter
+        recyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL ,false)
+
     }
 
     private fun alerter(s: String?) {
