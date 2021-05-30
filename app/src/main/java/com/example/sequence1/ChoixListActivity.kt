@@ -11,8 +11,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 
-//import com.google.gson.Gson
 
 class ChoixListActivity : AppCompatActivity() {
     private var sp: SharedPreferences? = null
@@ -48,9 +48,15 @@ class ChoixListActivity : AppCompatActivity() {
         val bdl = this.intent.extras
         val pseudo = bdl?.getString("string") //pseudo
 
-        var profil2Json = sp!!.getString("profilList", "no profil")
-        var profil2 = Gson().fromJson(profil2Json, ProfilListeToDo::class.java)
-        var listDeProfilList : MutableList<ProfilListeToDo> = mutableListOf(profilListe, profil2)
+
+        var list2ProfilListJson = """[{"login": "Macud", "mesListeToDo": [{"titreListToDo": "todolist1macud", "lesItems": [{"description": "", "fait": false}]}, {"titreListToDo": "todolist2macud", "lesItems": [{"description": "Trop cool", "fait": true}, {"description": "Moins bien", "fait": true}]}]}, {"login": "Nanok", "mesListeToDo": [{"titreListToDo": "todolist1nanok", "lesItems": [{"description": "", "fait": false}]}, {"titreListToDo": "todolist2", "lesItems": [{"description": "Trop cool", "fait": true}, {"description": "Moins bien", "fait": true}]}]}, {"login": "Paul", "mesListeToDo": [{"titreListToDo": "todolist1paul", "lesItems": [{"description": "", "fait": true}]}, {"titreListToDo": "todolist2", "lesItems": [{"description": "Trop cool", "fait": false}, {"description": "Moins bien", "fait": true}]}]}]"""
+//        var list2ProfilListJson = sp!!.getString("profilList", "no profil")
+
+
+        val list2profillisttype = object : TypeToken<MutableList<ProfilListeToDo>>() {}.type
+        var listDeProfilList : MutableList<ProfilListeToDo> = Gson().fromJson(list2ProfilListJson, list2profillisttype)
+
+
         var listDeProfilListJson = Gson().toJson(listDeProfilList)
         var profilList : ProfilListeToDo = ProfilListeToDo()
         var dataSet: MutableList<String> = mutableListOf()
