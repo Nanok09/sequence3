@@ -8,6 +8,8 @@ import android.view.View
 import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 //import com.google.gson.Gson
 
 class ChoixListActivity : AppCompatActivity(), View.OnClickListener {
@@ -23,9 +25,17 @@ class ChoixListActivity : AppCompatActivity(), View.OnClickListener {
 //    val profil2 = Gson().fromJson(profilListe.toString(), ProfilListeToDo::class.java)
 
 
+    var dataSet: MutableList<String> = mutableListOf("Liste 1","Liste 2", "Liste 3")
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.choix_list_layout)
+
+        val recyclerView: RecyclerView = findViewById(R.id.recycler_view)
+        val adapter: RecyclerViewAdapter = RecyclerViewAdapter(dataSet)
+        recyclerView.adapter = adapter
+        recyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL ,false)
+
 
         sp = PreferenceManager.getDefaultSharedPreferences(this)
         val smartCastSp = sp
