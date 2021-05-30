@@ -28,6 +28,6 @@ class GestionPreferences : PreferenceActivity(), OnPreferenceChangeListener {
             edtpl?.setText("")
         }
         return true
-    } // TODO : comment faire pour vider les préférences lorsque l'on
+    }
     // décoche la case depuis cette activité ?
 }

@@ -68,10 +68,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         val id = item.itemId
         when (id){
-//            R.id.menu_network -> {
-//                val iReseau = Intent(this, Reseau::class.java)
-//                startActivity(iReseau)
-//            }
             R.id.menu_settings -> {
                 alerter("Menu : click sur préférences")
                 val iGP = Intent(this, GestionPreferences::class.java)
