@@ -10,31 +10,32 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.gson.Gson
+
 //import com.google.gson.Gson
 
-class ChoixListActivity : AppCompatActivity(), View.OnClickListener {
+class ChoixListActivity : AppCompatActivity() {
     private var sp: SharedPreferences? = null
     private var editor: SharedPreferences.Editor? = null
-//    var item1 : ItemToDo = ItemToDo("Trop cool", true)
-//    var item2 : ItemToDo = ItemToDo("Moins bien", true)
-//    var liste1: ListeToDo = ListeToDo("todolist1")
-//    var liste2: ListeToDo = ListeToDo("todolist2", mutableListOf(item1, item2))
+    var item1 : ItemToDo = ItemToDo("Trop cool", true)
+    var item2 : ItemToDo = ItemToDo("Moins bien", true)
+    var liste1: ListeToDo = ListeToDo("todolist1")
+    var liste2: ListeToDo = ListeToDo("todolist2", mutableListOf(item1, item2))
 //
-//    var profilListe : ProfilListeToDo = ProfilListeToDo("Macud", mutableListOf(liste1, liste2))
-//
-//    val profil2 = Gson().fromJson(profilListe.toString(), ProfilListeToDo::class.java)
+
+    var profilListe : ProfilListeToDo = ProfilListeToDo("Nanok", mutableListOf(liste1, liste2))
 
 
-    var dataSet: MutableList<String> = mutableListOf("Liste 1","Liste 2", "Liste 3")
+
+
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.choix_list_layout)
 
-        val recyclerView: RecyclerView = findViewById(R.id.recycler_view)
-        val adapter: RecyclerViewAdapter = RecyclerViewAdapter(dataSet)
-        recyclerView.adapter = adapter
-        recyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL ,false)
+
 
 
         sp = PreferenceManager.getDefaultSharedPreferences(this)
@@ -47,9 +48,40 @@ class ChoixListActivity : AppCompatActivity(), View.OnClickListener {
         val bdl = this.intent.extras
         val pseudo = bdl?.getString("string") //pseudo
 
+        var profil2Json = sp!!.getString("profilList", "no profil")
+        var profil2 = Gson().fromJson(profil2Json, ProfilListeToDo::class.java)
+        var listDeProfilList : MutableList<ProfilListeToDo> = mutableListOf(profilListe, profil2)
+        var listDeProfilListJson = Gson().toJson(listDeProfilList)
+        var profilList : ProfilListeToDo = ProfilListeToDo()
+        var dataSet: MutableList<String> = mutableListOf()
 
-        val btnDisp: Button? = findViewById(R.id.displayStuff)
-        btnDisp?.setOnClickListener(this)
+        var compteur = 0
+        listDeProfilList.forEach {
+            if (it.login == pseudo){
+                profilList = it
+                compteur++
+            }
+        }
+        if (compteur == 0){
+            listDeProfilList.add(ProfilListeToDo(pseudo!!))
+            profilList = listDeProfilList.last()
+        }
+
+        profilList.mesListeToDo.forEach{
+            dataSet.add(it.titreListToDo)
+        }
+
+
+
+
+
+
+        val recyclerView: RecyclerView = findViewById(R.id.recycler_view)
+        val adapter: RecyclerViewAdapter = RecyclerViewAdapter(dataSet)
+        recyclerView.adapter = adapter
+        recyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL ,false)
+
+
 
     }
 
@@ -65,19 +97,11 @@ class ChoixListActivity : AppCompatActivity(), View.OnClickListener {
         private val CAT: String = "EDPMR"
     }
 
-    override fun onClick(v: View) {
-        when (v.id){
-            R.id.displayStuff -> {
-
-            }
-        }
-    }
 
     override fun onStart(){
         super.onStart()
         Log.i(CAT, "onStart")
-        val profilListJson = sp!!.getString("login", "login inconnu")
-
+        val profilListJson = sp!!.getString("profilList", "")
 
     }
 
