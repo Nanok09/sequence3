@@ -55,8 +55,7 @@ class ShowListRecyclerViewAdapter(private val todoLists: ListeToDo, private val 
         when(holder){
             is ItemViewHolder ->{
                 holder.parentLayout.setOnClickListener {
-                    val t = Toast.makeText(mContext, itemList.get(position).description, Toast.LENGTH_SHORT)
-                    t.show()
+                    itemList.get(position).fait = !itemList.get(position).fait
                 }
                 holder.bind(itemList.get(position))
             }

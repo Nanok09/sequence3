@@ -34,6 +34,9 @@ class ShowListActivity: AppCompatActivity(), View.OnClickListener {
     private var listDeProfilList : MutableList<ProfilListeToDo>? = null
     private var dataSet: ListeToDo? = null
 
+    private var position: Int? = null
+    private var pseudo: String? = null
+
     private fun alerter(s: String?) {
         if (s != null) {
             Log.i(ChoixListActivity.CAT, s)
@@ -43,8 +46,8 @@ class ShowListActivity: AppCompatActivity(), View.OnClickListener {
     }
 
 
-    override fun onCreate(savedInstanceState: Bundle?, persistentState: PersistableBundle?) {
-        super.onCreate(savedInstanceState, persistentState)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
         setContentView(R.layout.showlist_layout)
 
         btnCreateItem = findViewById(R.id.btnItem)
@@ -60,8 +63,9 @@ class ShowListActivity: AppCompatActivity(), View.OnClickListener {
         }
 
         val bdl = this.intent.extras
-        val pseudo = bdl?.getString("pseudo") //pseudo
-        val position = bdl?.getInt("position")
+
+        pseudo = bdl?.getString("pseudo") //pseudo
+        position = bdl?.getInt("position")
 
         alerter(pseudo)
         alerter(position.toString())
@@ -123,8 +127,30 @@ class ShowListActivity: AppCompatActivity(), View.OnClickListener {
 
     override fun onClick(v: View?) {
         when (v?.id){
-            R.id.btnOK -> {
-                dataSet?.lesItems?.add(ItemToDo("Trop bien", false))
+            R.id.btnItem -> {
+
+                alerter("click bouton btn")
+                dataSet?.lesItems?.add(ItemToDo(edtCreateItem!!.text.toString(), false))
+
+                profilList?.mesListeToDo?.set(position!!, dataSet!!)
+
+                var indexAModifier = 0
+
+                for ((index, value) in listDeProfilList!!.withIndex()){
+                    if(value.login == pseudo){
+                        indexAModifier = index
+                    }
+                }
+                listDeProfilList?.set(indexAModifier, profilList!!)
+
+
+                editor!!.putString("profilList", listDeProfilList.toString())
+                editor!!.commit()
+
+                val showlistRecyclerView: RecyclerView = findViewById(R.id.showlist_recyclerview)
+                val adapter: ShowListRecyclerViewAdapter = ShowListRecyclerViewAdapter(dataSet!!, this)
+                showlistRecyclerView.adapter = adapter
+                showlistRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL ,false)
             }
 
         }
