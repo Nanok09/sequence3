@@ -95,7 +95,7 @@ class ChoixListActivity : AppCompatActivity(), View.OnClickListener {
 
 
         val recyclerView: RecyclerView = findViewById(R.id.recycler_view)
-        val adapter: RecyclerViewAdapter = RecyclerViewAdapter(dataSet!!)
+        val adapter: RecyclerViewAdapter = RecyclerViewAdapter(profilList!!, this)
         recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL ,false)
 
@@ -116,7 +116,7 @@ class ChoixListActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     companion object {
-        private val CAT: String = "EDPMR"
+        val CAT: String = "EDPMR"
     }
 
 
@@ -184,7 +184,7 @@ class ChoixListActivity : AppCompatActivity(), View.OnClickListener {
 
 
                 val recyclerView: RecyclerView = findViewById(R.id.recycler_view)
-                val adapter: RecyclerViewAdapter = RecyclerViewAdapter(dataSet!!)
+                val adapter: RecyclerViewAdapter = RecyclerViewAdapter(profilList!!, this)
                 recyclerView.adapter = adapter
                 recyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL ,false)
             }

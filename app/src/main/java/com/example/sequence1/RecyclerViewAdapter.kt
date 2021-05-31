@@ -1,6 +1,7 @@
 package com.example.sequence1
 
-
+import android.content.Context
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -8,8 +9,9 @@ import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
-class RecyclerViewAdapter(private val dataSet: MutableList<String>) :
+class RecyclerViewAdapter(private val profilListeToDo: ProfilListeToDo, private val mContext: Context) :
     RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder>() {
+
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val textView: TextView
@@ -18,6 +20,11 @@ class RecyclerViewAdapter(private val dataSet: MutableList<String>) :
             // Define click listener for the ViewHolder's View.
             textView = view.findViewById(R.id.list_item1)
             parentLayout = view.findViewById(R.id.parent_layout)
+        }
+
+        fun bind(s: String) {
+            textView.text = s
+
         }
     }
 
@@ -31,14 +38,25 @@ class RecyclerViewAdapter(private val dataSet: MutableList<String>) :
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        // Get element from the dataset at this position, replace the contents with that element
-        holder.textView.text = dataSet[position]
 
-        //onclicklistener...
+
+        when (holder) {
+            is ViewHolder -> {
+                holder.parentLayout.setOnClickListener {
+                    val toShowListAct: Intent
+                    toShowListAct = Intent(mContext, ShowListActivity::class.java)
+                    toShowListAct.putExtra("pseudo", profilListeToDo.login)
+                    toShowListAct.putExtra("position", position)
+                    mContext.startActivity(toShowListAct)
+                }
+                // Get element from the dataset at this position, replace the contents with that element
+                holder.bind(profilListeToDo.mesListeToDo[position].titreListToDo)
+            }
+
+        }
     }
 
     override fun getItemCount(): Int {
-        return dataSet.size
+        return profilListeToDo.mesListeToDo.size
     }
-
 }
