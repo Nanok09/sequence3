@@ -6,6 +6,7 @@ import android.preference.PreferenceManager
 import android.util.Log
 import android.view.View
 import android.widget.Button
+import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -14,16 +15,23 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
 
-class ChoixListActivity : AppCompatActivity() {
+class ChoixListActivity : AppCompatActivity(), View.OnClickListener {
     private var sp: SharedPreferences? = null
     private var editor: SharedPreferences.Editor? = null
-    var item1 : ItemToDo = ItemToDo("Trop cool", true)
-    var item2 : ItemToDo = ItemToDo("Moins bien", true)
-    var liste1: ListeToDo = ListeToDo("todolist1")
-    var liste2: ListeToDo = ListeToDo("todolist2", mutableListOf(item1, item2))
-//
+    private var btnCreateTodo: Button? = null
+    private var edtCreateToDo: EditText? = null
 
-    var profilListe : ProfilListeToDo = ProfilListeToDo("Nanok", mutableListOf(liste1, liste2))
+
+
+//    private var list2ProfilListJson = """[{"login": "Macud", "mesListeToDo": [{"titreListToDo": "todolist1macud", "lesItems": [{"description": "", "fait": false}]}, {"titreListToDo": "todolist2macud", "lesItems": [{"description": "Trop cool", "fait": true}, {"description": "Moins bien", "fait": true}]}]}, {"login": "Nanok", "mesListeToDo": [{"titreListToDo": "todolist1nanok", "lesItems": [{"description": "", "fait": false}]}, {"titreListToDo": "todolist2", "lesItems": [{"description": "Trop cool", "fait": true}, {"description": "Moins bien", "fait": true}]}]}, {"login": "Paul", "mesListeToDo": [{"titreListToDo": "todolist1paul", "lesItems": [{"description": "", "fait": true}]}, {"titreListToDo": "todolist2", "lesItems": [{"description": "Trop cool", "fait": false}, {"description": "Moins bien", "fait": true}]}]}]"""
+    private var list2ProfilListJson : String? = null
+
+    private val list2profillisttype = object : TypeToken<MutableList<ProfilListeToDo>>() {}.type
+    private var profilList : ProfilListeToDo? = null
+
+    private var listDeProfilList : MutableList<ProfilListeToDo>? = null
+    private var dataSet: MutableList<String>? = null
+
 
 
 
@@ -44,37 +52,41 @@ class ChoixListActivity : AppCompatActivity() {
             editor = smartCastSp.edit()
         }
 
-
         val bdl = this.intent.extras
         val pseudo = bdl?.getString("string") //pseudo
 
 
-        var list2ProfilListJson = """[{"login": "Macud", "mesListeToDo": [{"titreListToDo": "todolist1macud", "lesItems": [{"description": "", "fait": false}]}, {"titreListToDo": "todolist2macud", "lesItems": [{"description": "Trop cool", "fait": true}, {"description": "Moins bien", "fait": true}]}]}, {"login": "Nanok", "mesListeToDo": [{"titreListToDo": "todolist1nanok", "lesItems": [{"description": "", "fait": false}]}, {"titreListToDo": "todolist2", "lesItems": [{"description": "Trop cool", "fait": true}, {"description": "Moins bien", "fait": true}]}]}, {"login": "Paul", "mesListeToDo": [{"titreListToDo": "todolist1paul", "lesItems": [{"description": "", "fait": true}]}, {"titreListToDo": "todolist2", "lesItems": [{"description": "Trop cool", "fait": false}, {"description": "Moins bien", "fait": true}]}]}]"""
-//        var list2ProfilListJson = sp!!.getString("profilList", "no profil")
+        list2ProfilListJson = sp!!.getString("profilList", "[]")
+
+        profilList  = ProfilListeToDo()
+
+        listDeProfilList = Gson().fromJson(list2ProfilListJson, list2profillisttype)
+        dataSet = mutableListOf()
+
+        //list2ProfilListJson = sp!!.getString("profilList", "no profil")
 
 
-        val list2profillisttype = object : TypeToken<MutableList<ProfilListeToDo>>() {}.type
-        var listDeProfilList : MutableList<ProfilListeToDo> = Gson().fromJson(list2ProfilListJson, list2profillisttype)
 
 
-        var listDeProfilListJson = Gson().toJson(listDeProfilList)
-        var profilList : ProfilListeToDo = ProfilListeToDo()
-        var dataSet: MutableList<String> = mutableListOf()
 
         var compteur = 0
-        listDeProfilList.forEach {
+        listDeProfilList?.forEach {
             if (it.login == pseudo){
+                //On prend les liste de todolist de la personne connectée
                 profilList = it
                 compteur++
             }
         }
         if (compteur == 0){
-            listDeProfilList.add(ProfilListeToDo(pseudo!!))
-            profilList = listDeProfilList.last()
+            //Si jamais la personne connectée n'a pas encore de liste de todolist on la crée
+            listDeProfilList?.add(ProfilListeToDo(pseudo!!))
+            profilList = listDeProfilList?.last()
         }
 
-        profilList.mesListeToDo.forEach{
-            dataSet.add(it.titreListToDo)
+
+        //On crée le dataset
+        profilList!!.mesListeToDo.forEach{
+            dataSet!!.add(it.titreListToDo)
         }
 
 
@@ -83,10 +95,14 @@ class ChoixListActivity : AppCompatActivity() {
 
 
         val recyclerView: RecyclerView = findViewById(R.id.recycler_view)
-        val adapter: RecyclerViewAdapter = RecyclerViewAdapter(dataSet)
+        val adapter: RecyclerViewAdapter = RecyclerViewAdapter(dataSet!!)
         recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL ,false)
 
+
+        edtCreateToDo = findViewById(R.id.edtCreateToDo)
+        btnCreateTodo = findViewById(R.id.btnCreateToDo)
+        btnCreateTodo!!.setOnClickListener(this)
 
 
     }
@@ -109,6 +125,70 @@ class ChoixListActivity : AppCompatActivity() {
         Log.i(CAT, "onStart")
         val profilListJson = sp!!.getString("profilList", "")
 
+    }
+
+    override fun onClick(v: View) {
+        when (v.id){
+            R.id.btnCreateToDo -> {
+                val bdl = this.intent.extras
+                val pseudo = bdl?.getString("string") //pseudo
+
+                list2ProfilListJson = sp!!.getString("profilList", "[]")
+
+                profilList  = ProfilListeToDo()
+
+                listDeProfilList = Gson().fromJson(list2ProfilListJson, list2profillisttype)
+                dataSet = mutableListOf()
+
+
+                var compteur = 0
+                listDeProfilList?.forEach {
+                    if (it.login == pseudo){
+                        //On prend les liste de todolist de la personne connectée
+                        profilList = it
+                        compteur++
+                    }
+                }
+                if (compteur == 0){
+                    //Si jamais la personne connectée n'a pas encore de liste de todolist on la crée
+                    listDeProfilList?.add(ProfilListeToDo(pseudo!!))
+                    profilList = listDeProfilList?.last()
+                }
+
+
+                //On crée le dataset
+                profilList!!.mesListeToDo.forEach{
+                    dataSet!!.add(it.titreListToDo)
+                }
+
+
+                val addedToDo = ListeToDo(edtCreateToDo!!.text.toString())
+                profilList!!.ajouteList(addedToDo)
+                listDeProfilList?.add(profilList!!)
+                dataSet!!.add(profilList!!.mesListeToDo.last().titreListToDo)
+
+                var indexAModifier = 0
+
+                for ((index, value) in listDeProfilList!!.withIndex()){
+                    if(value.login == pseudo){
+                        indexAModifier = index
+                    }
+                }
+
+                listDeProfilList?.set(indexAModifier, profilList!!)
+
+                editor!!.putString("profilList", listDeProfilList.toString())
+                editor!!.commit()
+
+
+
+
+                val recyclerView: RecyclerView = findViewById(R.id.recycler_view)
+                val adapter: RecyclerViewAdapter = RecyclerViewAdapter(dataSet!!)
+                recyclerView.adapter = adapter
+                recyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL ,false)
+            }
+        }
     }
 
 
