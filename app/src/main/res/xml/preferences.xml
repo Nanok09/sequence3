@@ -26,6 +26,10 @@
             android:defaultValue='[{"login": "Macud", "mesListeToDo": [{"titreListToDo": "todolist1", "lesItems": [{"description": "", "fait": false}]}, {"titreListToDo": "todolist2", "lesItems": [{"description": "Trop cool", "fait": true}, {"description": "Moins bien", "fait": true}]}]}, {"login": "Nanok", "mesListeToDo": [{"titreListToDo": "todolist1", "lesItems": [{"description": "", "fait": false}]}, {"titreListToDo": "todolist2", "lesItems": [{"description": "Trop cool", "fait": true}, {"description": "Moins bien", "fait": true}]}]}, {"login": "Paul", "mesListeToDo": [{"titreListToDo": "todolist1", "lesItems": [{"description": "", "fait": true}]}, {"titreListToDo": "todolist2", "lesItems": [{"description": "Trop cool", "fait": false}, {"description": "Moins bien", "fait": true}]}]}]'
             android:key="profilList"
             android:title="Listes" />
+        <EditTextPreference
+            android:defaultValue=''
+            android:key="hash"
+            android:title="Hash" />
     </PreferenceCategory>
 
 </PreferenceScreen>

@@ -3,6 +3,8 @@ package com.example.sequence2
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.SharedPreferences
+import android.net.ConnectivityManager
+import android.net.NetworkInfo
 import android.os.Bundle
 import android.preference.PreferenceManager
 import android.util.Log
@@ -14,10 +16,18 @@ import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.example.sequence2.api.Provider
+import kotlinx.coroutines.*
+
 
 class MainActivity : AppCompatActivity(), View.OnClickListener {
+    private val activityScope = CoroutineScope(
+        SupervisorJob() +
+                Dispatchers.Main
+    )
     private val CAT = "EDPMR"
     private var edtPseudo: EditText? = null
+    private var edtPass: EditText? = null
     private var cbRemember: CheckBox? = null
     private var btnOK: Button? = null
     private var sp: SharedPreferences? = null
@@ -35,11 +45,14 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         setContentView(R.layout.activity_main)
         Log.i(CAT, "onCreate")
 
-
+        //get ui elements
         btnOK = findViewById(R.id.btnOK)
         edtPseudo = findViewById(R.id.pseudo)
-
+        edtPass = findViewById(R.id.pass)
         cbRemember = findViewById(R.id.cbRemember)
+
+
+        //initialize sp and editor
         sp = PreferenceManager.getDefaultSharedPreferences(this)
         val smartCastSp = sp
         if (smartCastSp != null){
@@ -47,7 +60,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         }
 
 
-        //Demande a MainActivity d'implémenter l'interface onClickListener
+        //set on click listeners
         val smartCastBtn = btnOK
         if(smartCastBtn != null){
             smartCastBtn.setOnClickListener(this)
@@ -58,13 +71,14 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         }
     }
 
-    // affiche le menu si la méthode renvoie vrai
+    // display menu if method returns true
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
 
         menuInflater.inflate(R.menu.menu, menu)
         return true
     }
 
+    // called upon item selection. returns true if item is selected
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         val id = item.itemId
         when (id){
@@ -75,6 +89,16 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Log.i(CAT, "onResume")
+
+        btnOK?.isEnabled = verifReseau()
+
+
+
     }
 
     override fun onStart() {
@@ -102,15 +126,13 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         Log.i(CAT, "onRestart")
     }
 
-    override fun onResume() {
-        super.onResume()
-        Log.i(CAT, "onResume")
-    }
+
 
     override fun onClick(v: View){
         when (v.id){
             R.id.btnOK -> {
                 alerter(edtPseudo!!.text.toString())
+                alerter(edtPass!!.text.toString())
 
                 //on enregistre le login dans les préférences
                 if(cbRemember!!.isChecked){
@@ -118,16 +140,9 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                     editor!!.commit()
                 }
 
-                // Fabrication d'un bundle de données
-                val bdl = Bundle()
-                bdl.putString("string", edtPseudo!!.text.toString())
-                //Changer d'activité
-                val versSecondAct: Intent
-                // Intent explicite
-                versSecondAct = Intent(this@MainActivity, ChoixListActivity::class.java)
-                // Ajout d'un bundle a l'intent
-                versSecondAct.putExtras(bdl)
-                startActivity(versSecondAct)
+                login(edtPseudo!!.text.toString(), edtPass!!.text.toString())
+
+
             }
 
             R.id.cbRemember -> {
@@ -140,12 +155,74 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                     // on supprime le login de préférences
                     editor!!.putString("login", "")
                     editor!!.commit()
+
+
                 }
             }
 
             R.id.pseudo -> alerter("Veuillez entrer votre pseudo")
 
         }
+    }
+
+    private fun login(pseudo: String, pass: String) {
+
+        activityScope.launch{
+            try{
+                if(verifReseau()){
+                    val authResp = Provider.authenticate(pseudo, pass)
+                    Log.i(CAT, authResp.toString())
+                    if (authResp.success){
+                        editor!!.putString("hash", authResp.hash)
+                        editor!!.commit()
+
+                        // Fabrication d'un bundle de données
+                        val bdl = Bundle()
+                        bdl.putString("string",pseudo)
+                        //Changer d'activité
+                        val versChoixList: Intent
+                        // Intent explicite
+                        versChoixList = Intent(this@MainActivity, ChoixListActivity::class.java)
+                        // Ajout d'un bundle a l'intent
+                        versChoixList.putExtras(bdl)
+                        startActivity(versChoixList)
+                    }
+                    else{
+                        Log.i(CAT, "authentification failed")
+                        alerter("authentification failed")
+                    }
+                } else{
+                    Log.i(CAT, "no connection")
+                    alerter("no connection")
+                }
+
+            } catch (e: Exception){
+                Log.i(CAT, "Error: " + e.message + pseudo + pass)
+            }
+        }
+    }
+
+
+    fun verifReseau(): Boolean {
+        // On vérifie si le réseau est disponible,
+        // si oui on change le statut du bouton de connexion
+        val cnMngr = getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
+        val netInfo = cnMngr.activeNetworkInfo
+        var sType = "Aucun réseau détecté"
+        var bStatut = false
+        if (netInfo != null) {
+            val netState = netInfo.state
+            if (netState.compareTo(NetworkInfo.State.CONNECTED) == 0) {
+                bStatut = true
+                val netType = netInfo.type
+                when (netType) {
+                    ConnectivityManager.TYPE_MOBILE -> sType = "Réseau mobile détecté"
+                    ConnectivityManager.TYPE_WIFI -> sType = "Réseau wifi détecté"
+                }
+            }
+        }
+        Log.i(CAT, sType)
+        return bStatut
     }
 
 

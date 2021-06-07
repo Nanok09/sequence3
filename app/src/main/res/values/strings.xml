@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">sequence1</string>
     <string name="labelPseudo">Pseudo</string>
+    <string name="labelPass">Mot de passe</string>
     <string name="btnOK">OK</string>
     <string name="se_souvenir_de_moi">Se souvenir de moi</string>
 </resources>
