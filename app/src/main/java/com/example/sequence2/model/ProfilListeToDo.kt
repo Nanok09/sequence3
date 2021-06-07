@@ -1,6 +1,8 @@
-package com.example.sequence1
+package com.example.sequence2.model
 
-class ProfilListeToDo (var login: String = "", var mesListeToDo : MutableList<ListeToDo> = mutableListOf<ListeToDo>(ListeToDo(""))) {
+class ProfilListeToDo (var login: String = "", var mesListeToDo : MutableList<ListeToDo> = mutableListOf<ListeToDo>(
+    ListeToDo("")
+)) {
 
 
 @JvmName("getMesListeToDo1")

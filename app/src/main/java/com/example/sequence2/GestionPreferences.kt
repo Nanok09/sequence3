@@ -1,4 +1,4 @@
-package com.example.sequence1
+package com.example.sequence2
 
 import android.os.Bundle
 import android.preference.CheckBoxPreference

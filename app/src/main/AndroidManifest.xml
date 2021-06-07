@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.sequence1">
+    package="com.example.sequence2">
 
 
 
@@ -11,16 +11,16 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Sequence1" >
-        <activity android:name=".MainActivity">
+        <activity android:name="com.example.sequence2.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ChoixListActivity"></activity>
-        <activity android:name=".GestionPreferences"></activity>
-        <activity android:name=".ShowListActivity"></activity>
+        <activity android:name="com.example.sequence2.ChoixListActivity"></activity>
+        <activity android:name="com.example.sequence2.GestionPreferences"></activity>
+        <activity android:name="com.example.sequence2.ShowListActivity"></activity>
 
 
     </application>

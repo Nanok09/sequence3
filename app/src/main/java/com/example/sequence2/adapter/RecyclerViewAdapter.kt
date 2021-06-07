@@ -1,4 +1,4 @@
-package com.example.sequence1
+package com.example.sequence2.adapter
 
 import android.content.Context
 import android.content.Intent
@@ -8,6 +8,9 @@ import android.view.ViewGroup
 import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.example.sequence2.model.ProfilListeToDo
+import com.example.sequence2.R
+import com.example.sequence2.ShowListActivity
 
 class RecyclerViewAdapter(private val profilListeToDo: ProfilListeToDo, private val mContext: Context) :
     RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder>() {

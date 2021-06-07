@@ -1,6 +1,8 @@
-package com.example.sequence1
+package com.example.sequence2.model
 
-class ListeToDo (var titreListToDo: String, var lesItems: MutableList<ItemToDo> = mutableListOf<ItemToDo>(ItemToDo())) {
+class ListeToDo (var titreListToDo: String, var lesItems: MutableList<ItemToDo> = mutableListOf<ItemToDo>(
+    ItemToDo()
+)) {
 
 @JvmName("setTitreListToDo1")
 fun setTitreListToDo(titre: String){
