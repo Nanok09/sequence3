@@ -1,10 +1,7 @@
 package com.example.sequence2.api
 
 import com.example.sequence2.model.responses.*
-import retrofit2.http.GET
-import retrofit2.http.POST
-import retrofit2.http.Path
-import retrofit2.http.Query
+import retrofit2.http.*
 
 
 interface Service {
@@ -20,4 +17,7 @@ interface Service {
 
     @POST("lists/{id}/items")
     suspend fun addItem(@Path("id") id: Int, @Query("hash") hash: String, @Query("label") description: String): AddItemResponse
+
+    @PUT("lists/{idList}/items/{idItem}")
+    suspend fun updateItem(@Path("idList") idList: Int, @Path("idItem") idItem: Int, @Query("hash") hash: String, @Query("check") check: Int): AddItemResponse
 }

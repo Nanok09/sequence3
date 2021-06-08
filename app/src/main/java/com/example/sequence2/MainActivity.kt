@@ -106,18 +106,21 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         Log.i(CAT, "onStart")
 
         // Relire les préférences partagées de l'application
-        val cbR = sp!!.getBoolean("remember", false)
+        val cbR = sp!!.getBoolean("remember", true)
 
         //acutaliser l'état de la case á cocher
         cbRemember!!.isChecked = cbR
 
         //SI la case est cochée, on utilise les préférences pour définir le login
         if(cbRemember!!.isChecked){
-            val l = sp!!.getString("login", "login inconnu")
-            edtPseudo!!.setText(l)
+            val pseudo = sp!!.getString("login", "login inconnu")
+            val pass = sp!!.getString("pass", "pass inconnu")
+            edtPseudo!!.setText(pseudo)
+            edtPass!!.setText(pass)
         } else{
             // Sinon, le champ doit etre vide
             edtPseudo!!.setText("")
+            edtPass!!.setText("")
         }
     }
 
@@ -137,6 +140,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                 //on enregistre le login dans les préférences
                 if(cbRemember!!.isChecked){
                     editor!!.putString("login", edtPseudo!!.text.toString())
+                    editor!!.putString("pass", edtPass!!.text.toString())
                     editor!!.commit()
                 }
 
@@ -149,11 +153,12 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                 alerter("click sur CB")
 
                 //On clique sur la case : il faut mettre á jour les préférences
-                editor!!.putBoolean("rembmer", cbRemember!!.isChecked)
+                editor!!.putBoolean("remember", cbRemember!!.isChecked)
                 editor!!.commit()
                 if(!cbRemember!!.isChecked){
                     // on supprime le login de préférences
                     editor!!.putString("login", "")
+                    editor!!.putString("pass", "")
                     editor!!.commit()
 
 

@@ -102,7 +102,9 @@ class ShowListActivity: AppCompatActivity(), View.OnClickListener {
 
 
         adapter = ShowListRecyclerViewAdapter(itemList!!, this)
-
+        adapter!!.onChange = { item: ItemToDo, fait: Boolean,  ->
+            updateItem(id!!, hash!!, item.id, if (fait) 1 else 0)
+        }
 
 
 
@@ -128,7 +130,7 @@ class ShowListActivity: AppCompatActivity(), View.OnClickListener {
                 alerter("click bouton btnItem")
                 val description = edtCreateItem!!.text.toString()
 
-                addItem(id!!, hash!!, description, itemList!!)
+                addItem(id!!, hash!!, description)
             }
 
         }
@@ -159,8 +161,8 @@ class ShowListActivity: AppCompatActivity(), View.OnClickListener {
 
     }
 
-    private fun addItem(id: Int, hash: String, description: String, todolist: MutableList<ItemToDo>){
-        Log.i(ChoixListActivity.CAT, "id $id hash $hash description $description todolist $todolist")
+    private fun addItem(id: Int, hash: String, description: String){
+
 
         activityScope.launch {
             try {
@@ -195,6 +197,53 @@ class ShowListActivity: AppCompatActivity(), View.OnClickListener {
             }
         }
     }
+
+    private fun updateItem(idList: Int, hash: String, idItem: Int, fait: Int){
+
+        activityScope.launch {
+            try {
+                if (verifReseau()){
+
+
+
+
+                    val updateItemResp = Provider.updateItem(idList, hash, idItem, fait)
+                    Log.i(ChoixListActivity.CAT, updateItemResp.toString())
+
+                    if (updateItemResp.success){
+                        Log.i(ChoixListActivity.CAT, "update item Success")
+
+
+                        val item: ItemToDo = updateItemResp.item
+                        Log.i(ChoixListActivity.CAT, item.toString())
+
+                        for (item in adapter!!.itemList){
+                            if (item.id == idItem){
+                                item.fait = fait
+                            }
+                        }
+
+                        adapter!!.notifyDataSetChanged()
+
+
+
+
+
+
+                    } else{
+                        Log.i(ChoixListActivity.CAT, "Erreur de l ajout de l item")
+                    }
+                } else{
+                    Log.i(ChoixListActivity.CAT, "Pas de connexion")
+                }
+            } catch (e: Exception){
+                Log.i(ChoixListActivity.CAT, "Erreur: ${e.message}")
+            }
+
+
+        }
+    }
+
 
     fun verifReseau(): Boolean {
         // On vérifie si le réseau est disponible,

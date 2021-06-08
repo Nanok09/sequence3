@@ -33,4 +33,8 @@ object Provider {
         return service.addItem(id, hash, description)
     }
 
+    suspend fun updateItem(idList: Int, hash: String, idItem: Int, check: Int): AddItemResponse {
+        return service.updateItem(idList, idItem,hash, check)
+    }
+
 }
