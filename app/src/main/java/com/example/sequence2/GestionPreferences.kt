@@ -7,6 +7,7 @@ import android.preference.Preference
 import android.preference.Preference.OnPreferenceChangeListener
 import android.preference.PreferenceActivity
 import android.widget.Toast
+import com.example.sequence2.api.Provider
 
 class GestionPreferences : PreferenceActivity(), OnPreferenceChangeListener {
     var cbp: CheckBoxPreference? = null
@@ -26,6 +27,10 @@ class GestionPreferences : PreferenceActivity(), OnPreferenceChangeListener {
         t.show()
         if (newValue == false) {
             edtpl?.setText("")
+        }
+
+        if(preference!!.getKey() == "url"){
+            Provider.changeUrl(newValue.toString())
         }
         return true
     }

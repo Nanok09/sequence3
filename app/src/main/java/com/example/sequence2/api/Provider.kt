@@ -6,7 +6,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 object Provider {
 
-    private val BASE_URL = "http://tomnab.fr/todo-api/"
+    private var BASE_URL = "http://tomnab.fr/todo-api/"
 
     private val retrofit = Retrofit.Builder()
         .baseUrl(BASE_URL)
@@ -16,6 +16,10 @@ object Provider {
 
     private val service = retrofit.create(Service::class.java)
 
+
+    fun changeUrl(newUrl: String){
+        BASE_URL = newUrl
+    }
 
     suspend fun authenticate(user: String, pass: String): AuthResponse {
         return service.authenticate(user, pass)

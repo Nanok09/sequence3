@@ -30,6 +30,10 @@
             android:defaultValue=''
             android:key="hash"
             android:title="Hash" />
+        <EditTextPreference
+            android:defaultValue="http://tomnab.fr/todo-api/"
+            android:key="url"
+            android:title="URL" />
     </PreferenceCategory>
 
 </PreferenceScreen>
