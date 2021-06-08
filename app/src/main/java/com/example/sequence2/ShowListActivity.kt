@@ -2,6 +2,8 @@ package com.example.sequence2
 
 
 import android.content.SharedPreferences
+import android.net.ConnectivityManager
+import android.net.NetworkInfo
 import android.os.Bundle
 import android.preference.PreferenceManager
 import android.util.Log
@@ -13,33 +15,45 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.sequence2.adapter.ShowListRecyclerViewAdapter
+import com.example.sequence2.api.Provider
 import com.example.sequence2.model.ItemToDo
 import com.example.sequence2.model.ListeToDo
 import com.example.sequence2.model.ProfilListeToDo
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import kotlinx.coroutines.*
+import java.lang.Exception
 
 class ShowListActivity: AppCompatActivity(), View.OnClickListener {
 
+    private val activityScope = CoroutineScope(
+        SupervisorJob() +
+                Dispatchers.Main
+    )
+
+    //SharedPreferences
     private var sp: SharedPreferences? = null
     private var editor: SharedPreferences.Editor? = null
+    private var hash: String? = null
+
+
+    //Initialize UI elements
     private var btnCreateItem: Button? = null
     private var edtCreateItem: EditText? = null
 
-
-
-    //    private var list2ProfilListJson = """[{"login": "Macud", "mesListeToDo": [{"titreListToDo": "todolist1macud", "lesItems": [{"description": "", "fait": false}]}, {"titreListToDo": "todolist2macud", "lesItems": [{"description": "Trop cool", "fait": true}, {"description": "Moins bien", "fait": true}]}]}, {"login": "Nanok", "mesListeToDo": [{"titreListToDo": "todolist1nanok", "lesItems": [{"description": "", "fait": false}]}, {"titreListToDo": "todolist2", "lesItems": [{"description": "Trop cool", "fait": true}, {"description": "Moins bien", "fait": true}]}]}, {"login": "Paul", "mesListeToDo": [{"titreListToDo": "todolist1paul", "lesItems": [{"description": "", "fait": true}]}, {"titreListToDo": "todolist2", "lesItems": [{"description": "Trop cool", "fait": false}, {"description": "Moins bien", "fait": true}]}]}]"""
-    private var list2ProfilListJson : String? = null
-
-    private val list2profillisttype = object : TypeToken<MutableList<ProfilListeToDo>>() {}.type
-    private var profilList : ProfilListeToDo? = null
-
-    private var listDeProfilList : MutableList<ProfilListeToDo>? = null
-    private var dataSet: ListeToDo? = null
-
+    //Received bundle extras
+    private var id: Int? = null
     private var position: Int? = null
-    private var pseudo: String? = null
 
+    //List of displayed elements
+    private var itemList : MutableList<ItemToDo>? = null
+
+
+    //Recyclerview adapter
+    private var adapter: ShowListRecyclerViewAdapter? = null
+
+
+    //Helper function displays a toast and prints a log
     private fun alerter(s: String?) {
         if (s != null) {
             Log.i(ChoixListActivity.CAT, s)
@@ -50,14 +64,20 @@ class ShowListActivity: AppCompatActivity(), View.OnClickListener {
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        Log.i(ChoixListActivity.CAT, "onCreate")
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.showlist_layout)
 
+        //Get UI elements
         btnCreateItem = findViewById(R.id.btnItem)
         edtCreateItem = findViewById(R.id.edtItem)
 
+        //Set Listeners
         btnCreateItem!!.setOnClickListener(this)
         edtCreateItem!!.setOnClickListener(this)
+
+
 
         sp = PreferenceManager.getDefaultSharedPreferences(this)
         val smartCastSp = sp
@@ -65,56 +85,30 @@ class ShowListActivity: AppCompatActivity(), View.OnClickListener {
             editor = smartCastSp.edit()
         }
 
+
         val bdl = this.intent.extras
 
-        pseudo = bdl?.getString("pseudo") //pseudo
+        id = bdl?.getInt("id") //pseudo
         position = bdl?.getInt("position")
 
-        alerter(pseudo)
+        alerter(id.toString())
         alerter(position.toString())
+        hash = sp!!.getString("hash", "")
 
-
-
-        list2ProfilListJson = sp!!.getString("profilList", "[]")
-
-        profilList  = ProfilListeToDo()
-
-        listDeProfilList = Gson().fromJson(list2ProfilListJson, list2profillisttype)
-        dataSet = null
-
-        //list2ProfilListJson = sp!!.getString("profilList", "no profil")
+        //Get items list via HTTP request
+        itemList  = getToDoItems(id!!, hash!!)
 
 
 
 
-
-        var compteur = 0
-        listDeProfilList?.forEach {
-            if (it.login == pseudo){
-                //On prend les liste de todolist de la personne connectée
-                profilList = it
-                compteur++
-            }
-        }
-        if (compteur == 0){
-            //Si jamais la personne connectée n'a pas encore de liste de todolist on la crée
-            listDeProfilList?.add(ProfilListeToDo(pseudo!!))
-            profilList = listDeProfilList?.last()
-        }
-
-
-        //On crée le dataset
-        dataSet = profilList?.mesListeToDo?.get(position!!)
+        adapter = ShowListRecyclerViewAdapter(itemList!!, this)
 
 
 
 
 
-
-
-
+        //Recyclerview
         val showlistRecyclerView: RecyclerView = findViewById(R.id.showlist_recyclerview)
-        val adapter: ShowListRecyclerViewAdapter = ShowListRecyclerViewAdapter(dataSet!!, this)
         showlistRecyclerView.adapter = adapter
         showlistRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL ,false)
 
@@ -131,34 +125,96 @@ class ShowListActivity: AppCompatActivity(), View.OnClickListener {
     override fun onClick(v: View?) {
         when (v?.id){
             R.id.btnItem -> {
+                alerter("click bouton btnItem")
+                val description = edtCreateItem!!.text.toString()
 
-                alerter("click bouton btn")
-                dataSet?.lesItems?.add(ItemToDo(edtCreateItem!!.text.toString(), false))
-
-                profilList?.mesListeToDo?.set(position!!, dataSet!!)
-
-                var indexAModifier = 0
-
-                for ((index, value) in listDeProfilList!!.withIndex()){
-                    if(value.login == pseudo){
-                        indexAModifier = index
-                    }
-                }
-                listDeProfilList?.set(indexAModifier, profilList!!)
-
-
-                editor!!.putString("profilList", listDeProfilList.toString())
-                editor!!.commit()
-
-                val showlistRecyclerView: RecyclerView = findViewById(R.id.showlist_recyclerview)
-                val adapter: ShowListRecyclerViewAdapter = ShowListRecyclerViewAdapter(dataSet!!, this)
-                showlistRecyclerView.adapter = adapter
-                showlistRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL ,false)
+                addItem(id!!, hash!!, description, itemList!!)
             }
 
         }
 
     }
 
+    private fun getToDoItems(id: Int, hash: String): MutableList<ItemToDo> {
+        return runBlocking {
+            try {
+                if (verifReseau()){
+                    val getItemsResp = Provider.getItems(id, hash)
+                    Log.i(ChoixListActivity.CAT, getItemsResp.toString())
 
+
+                    if (getItemsResp.success){
+                        return@runBlocking getItemsResp.items
+                    } else{
+                        Log.i(ChoixListActivity.CAT, "Erreur de recuperation des items")
+                    }
+                } else {
+                    Log.i(ChoixListActivity.CAT, "pas de connexion")
+                }
+            } catch (e: Exception){
+                Log.i(ChoixListActivity.CAT, "Erreur: " + e.message)
+            }
+            return@runBlocking mutableListOf<ItemToDo>()
+        }
+
+    }
+
+    private fun addItem(id: Int, hash: String, description: String, todolist: MutableList<ItemToDo>){
+        Log.i(ChoixListActivity.CAT, "id $id hash $hash description $description todolist $todolist")
+
+        activityScope.launch {
+            try {
+                if (verifReseau()){
+                    val addItemsResp = Provider.addItem(id, hash, description)
+                    Log.i(ChoixListActivity.CAT, addItemsResp.toString())
+
+                    if (addItemsResp.success){
+                        Log.i(ChoixListActivity.CAT, "Success")
+
+
+                        val item: ItemToDo = addItemsResp.item
+                        Log.i(ChoixListActivity.CAT, item.toString())
+
+
+                        adapter!!.itemList.add(item)
+                        adapter!!.notifyDataSetChanged()
+
+
+
+
+
+
+                    } else{
+                        Log.i(ChoixListActivity.CAT, "Erreur de l ajout de l item")
+                    }
+                }else{
+                    Log.i(ChoixListActivity.CAT, "Pas de connexion")
+                }
+            } catch (e: Exception){
+                Log.i(ChoixListActivity.CAT, "Erreur: ${e.message}")
+            }
+        }
+    }
+
+    fun verifReseau(): Boolean {
+        // On vérifie si le réseau est disponible,
+        // si oui on change le statut du bouton de connexion
+        val cnMngr = getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
+        val netInfo = cnMngr.activeNetworkInfo
+        var sType = "Aucun réseau détecté"
+        var bStatut = false
+        if (netInfo != null) {
+            val netState = netInfo.state
+            if (netState.compareTo(NetworkInfo.State.CONNECTED) == 0) {
+                bStatut = true
+                val netType = netInfo.type
+                when (netType) {
+                    ConnectivityManager.TYPE_MOBILE -> sType = "Réseau mobile détecté"
+                    ConnectivityManager.TYPE_WIFI -> sType = "Réseau wifi détecté"
+                }
+            }
+        }
+        Log.i(ChoixListActivity.CAT, sType)
+        return bStatut
+    }
 }

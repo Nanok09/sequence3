@@ -1,6 +1,8 @@
 package com.example.sequence2
 
 import android.content.SharedPreferences
+import android.net.ConnectivityManager
+import android.net.NetworkInfo
 import android.os.Bundle
 import android.preference.PreferenceManager
 import android.util.Log
@@ -12,10 +14,15 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.sequence2.adapter.RecyclerViewAdapter
+import com.example.sequence2.api.Provider
+import com.example.sequence2.model.ItemToDo
 import com.example.sequence2.model.ListeToDo
 import com.example.sequence2.model.ProfilListeToDo
 import com.google.gson.Gson
+import com.google.gson.annotations.SerializedName
 import com.google.gson.reflect.TypeToken
+import kotlinx.coroutines.runBlocking
+import java.lang.Exception
 
 
 class ChoixListActivity : AppCompatActivity(), View.OnClickListener {
@@ -26,7 +33,7 @@ class ChoixListActivity : AppCompatActivity(), View.OnClickListener {
 
 
 
-//    private var list2ProfilListJson = """[{"login": "Macud", "mesListeToDo": [{"titreListToDo": "todolist1macud", "lesItems": [{"description": "", "fait": false}]}, {"titreListToDo": "todolist2macud", "lesItems": [{"description": "Trop cool", "fait": true}, {"description": "Moins bien", "fait": true}]}]}, {"login": "Nanok", "mesListeToDo": [{"titreListToDo": "todolist1nanok", "lesItems": [{"description": "", "fait": false}]}, {"titreListToDo": "todolist2", "lesItems": [{"description": "Trop cool", "fait": true}, {"description": "Moins bien", "fait": true}]}]}, {"login": "Paul", "mesListeToDo": [{"titreListToDo": "todolist1paul", "lesItems": [{"description": "", "fait": true}]}, {"titreListToDo": "todolist2", "lesItems": [{"description": "Trop cool", "fait": false}, {"description": "Moins bien", "fait": true}]}]}]"""
+
     private var list2ProfilListJson : String? = null
 
     private val list2profillisttype = object : TypeToken<MutableList<ProfilListeToDo>>() {}.type
@@ -57,34 +64,18 @@ class ChoixListActivity : AppCompatActivity(), View.OnClickListener {
 
         val bdl = this.intent.extras
         val pseudo = bdl?.getString("string") //pseudo
+        val hash = sp!!.getString("hash", "") //hash
 
 
-        list2ProfilListJson = sp!!.getString("profilList", "[]")
 
-        profilList  = ProfilListeToDo()
 
-        listDeProfilList = Gson().fromJson(list2ProfilListJson, list2profillisttype)
+//        list2ProfilListJson = sp!!.getString("profilList", "[]")
+        var toDolists = getToDoLists(hash!!)
+        Log.i(CAT, toDolists.toString())
+
+        profilList  = ProfilListeToDo(pseudo!!, toDolists)
+
         dataSet = mutableListOf()
-
-        //list2ProfilListJson = sp!!.getString("profilList", "no profil")
-
-
-
-
-
-        var compteur = 0
-        listDeProfilList?.forEach {
-            if (it.login == pseudo){
-                //On prend les liste de todolist de la personne connectée
-                profilList = it
-                compteur++
-            }
-        }
-        if (compteur == 0){
-            //Si jamais la personne connectée n'a pas encore de liste de todolist on la crée
-            listDeProfilList?.add(ProfilListeToDo(pseudo!!))
-            profilList = listDeProfilList?.last()
-        }
 
 
         //On crée le dataset
@@ -107,6 +98,28 @@ class ChoixListActivity : AppCompatActivity(), View.OnClickListener {
         btnCreateTodo = findViewById(R.id.btnCreateToDo)
         btnCreateTodo!!.setOnClickListener(this)
 
+
+    }
+
+    private fun getToDoLists(hash: String): MutableList<ListeToDo> {
+        return runBlocking {
+            try {
+                if (verifReseau()){
+                    val getListsResp = Provider.getLists(hash)
+                    Log.i(CAT, getListsResp.toString())
+                    if (getListsResp.success){
+                        return@runBlocking getListsResp.lists
+                    } else{
+                        Log.i(CAT, "Erreur de recuperation de liste")
+                    }
+                } else {
+                    Log.i(CAT, "pas de connexion")
+                }
+            } catch (e: Exception){
+                Log.i(CAT, "Erreur: " + e.message)
+            }
+            return@runBlocking mutableListOf<ListeToDo>()
+        }
 
     }
 
@@ -133,66 +146,29 @@ class ChoixListActivity : AppCompatActivity(), View.OnClickListener {
     override fun onClick(v: View) {
         when (v.id){
             R.id.btnCreateToDo -> {
-                val bdl = this.intent.extras
-                val pseudo = bdl?.getString("string") //pseudo
-
-                list2ProfilListJson = sp!!.getString("profilList", "[]")
-
-                profilList  = ProfilListeToDo()
-
-                listDeProfilList = Gson().fromJson(list2ProfilListJson, list2profillisttype)
-                dataSet = mutableListOf()
-
-
-                var compteur = 0
-                listDeProfilList?.forEach {
-                    if (it.login == pseudo){
-                        //On prend les liste de todolist de la personne connectée
-                        profilList = it
-                        compteur++
-                    }
-                }
-                if (compteur == 0){
-                    //Si jamais la personne connectée n'a pas encore de liste de todolist on la crée
-                    listDeProfilList?.add(ProfilListeToDo(pseudo!!))
-                    profilList = listDeProfilList?.last()
-                }
-
-
-                //On crée le dataset
-                profilList!!.mesListeToDo.forEach{
-                    dataSet!!.add(it.titreListToDo)
-                }
-
-
-                val addedToDo = ListeToDo(edtCreateToDo!!.text.toString())
-                profilList!!.ajouteList(addedToDo)
-                listDeProfilList?.add(profilList!!)
-                dataSet!!.add(profilList!!.mesListeToDo.last().titreListToDo)
-
-                var indexAModifier = 0
-
-                for ((index, value) in listDeProfilList!!.withIndex()){
-                    if(value.login == pseudo){
-                        indexAModifier = index
-                    }
-                }
-
-                listDeProfilList?.set(indexAModifier, profilList!!)
-
-                editor!!.putString("profilList", listDeProfilList.toString())
-                editor!!.commit()
-
-
-
-
-                val recyclerView: RecyclerView = findViewById(R.id.recycler_view)
-                val adapter: RecyclerViewAdapter = RecyclerViewAdapter(profilList!!, this)
-                recyclerView.adapter = adapter
-                recyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL ,false)
             }
         }
     }
-
+    fun verifReseau(): Boolean {
+        // On vérifie si le réseau est disponible,
+        // si oui on change le statut du bouton de connexion
+        val cnMngr = getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
+        val netInfo = cnMngr.activeNetworkInfo
+        var sType = "Aucun réseau détecté"
+        var bStatut = false
+        if (netInfo != null) {
+            val netState = netInfo.state
+            if (netState.compareTo(NetworkInfo.State.CONNECTED) == 0) {
+                bStatut = true
+                val netType = netInfo.type
+                when (netType) {
+                    ConnectivityManager.TYPE_MOBILE -> sType = "Réseau mobile détecté"
+                    ConnectivityManager.TYPE_WIFI -> sType = "Réseau wifi détecté"
+                }
+            }
+        }
+        Log.i(CAT, sType)
+        return bStatut
+    }
 
 }

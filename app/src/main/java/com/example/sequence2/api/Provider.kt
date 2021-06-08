@@ -1,6 +1,6 @@
 package com.example.sequence2.api
 
-import com.example.sequence2.model.responses.AuthResponse
+import com.example.sequence2.model.responses.*
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
@@ -19,4 +19,18 @@ object Provider {
 
     suspend fun authenticate(user: String, pass: String): AuthResponse {
         return service.authenticate(user, pass)
-    }}
+    }
+
+    suspend fun getLists(hash: String): GetListsResponse {
+        return service.getLists(hash)
+    }
+
+    suspend fun getItems(id: Int, hash: String): GetItemsResponse {
+        return service.getItems(id, hash)
+    }
+
+    suspend fun addItem(id: Int, hash: String, description: String): AddItemResponse {
+        return service.addItem(id, hash, description)
+    }
+
+}

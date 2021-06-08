@@ -1,8 +1,15 @@
 package com.example.sequence2.model
 
-class ListeToDo (var titreListToDo: String, var lesItems: MutableList<ItemToDo> = mutableListOf<ItemToDo>(
-    ItemToDo()
-)) {
+import com.google.gson.annotations.SerializedName
+
+data class ListeToDo (
+    @SerializedName("id")
+    var id: Int = 0,
+    @SerializedName("label")
+    var titreListToDo: String = "",
+    var lesItems: MutableList<ItemToDo> = mutableListOf<ItemToDo>(ItemToDo())
+
+) {
 
 @JvmName("setTitreListToDo1")
 fun setTitreListToDo(titre: String){
@@ -42,7 +49,7 @@ fun printList(itemList: MutableList<ItemToDo>): String{
 }
 override fun toString(): String {
     //TODO
-    return "{\"titreListToDo\": \"${titreListToDo}\", \"lesItems\": ${lesItems}}"
+    return "{\"id\": \"${id}\", \"titreListToDo\": \"${titreListToDo}\", \"lesItems\": ${lesItems}}"
 
 }
 

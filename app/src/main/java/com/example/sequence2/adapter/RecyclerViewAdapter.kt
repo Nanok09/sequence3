@@ -48,7 +48,7 @@ class RecyclerViewAdapter(private val profilListeToDo: ProfilListeToDo, private 
                 holder.parentLayout.setOnClickListener {
                     val toShowListAct: Intent
                     toShowListAct = Intent(mContext, ShowListActivity::class.java)
-                    toShowListAct.putExtra("pseudo", profilListeToDo.login)
+                    toShowListAct.putExtra("id", profilListeToDo.mesListeToDo[position].id)
                     toShowListAct.putExtra("position", position)
                     mContext.startActivity(toShowListAct)
                 }

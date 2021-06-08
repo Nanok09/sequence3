@@ -1,5 +1,6 @@
 package com.example.sequence2.adapter
 
+import android.content.ClipData
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
@@ -13,11 +14,14 @@ import com.example.sequence2.model.ListeToDo
 import com.example.sequence2.R
 
 
-class ShowListRecyclerViewAdapter(private val todoLists: ListeToDo, private val mContext: Context) :
+class ShowListRecyclerViewAdapter(
+    var itemList: MutableList<ItemToDo> = mutableListOf(ItemToDo()),
+    private val mContext: Context) :
     RecyclerView.Adapter<ShowListRecyclerViewAdapter.ItemViewHolder>() {
 
 
-    private var itemList: MutableList<ItemToDo> = todoLists.lesItems
+    var onChange: ((ItemToDo, Boolean) -> Unit)? = null
+
 
 
 
@@ -32,16 +36,14 @@ class ShowListRecyclerViewAdapter(private val todoLists: ListeToDo, private val 
             description = itemView.findViewById(R.id.showlisttext)
             parentLayout = itemView.findViewById(R.id.showlist_parent_layout)
         }
-        fun bind(item: ItemToDo) {
-            checkBox.isChecked = item.getFait()
-            description.text = item.getDescription()
-        }
+
 
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
 
-        val view: View = LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_showlistlayout, parent, false)
+        val view: View = LayoutInflater.from(parent.getContext())
+            .inflate(R.layout.layout_showlistlayout, parent, false)
 
         val holder = ItemViewHolder(view)
         return holder
@@ -50,12 +52,18 @@ class ShowListRecyclerViewAdapter(private val todoLists: ListeToDo, private val 
 
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
 
+        val item = itemList.get(position)
         when(holder){
             is ItemViewHolder ->{
-                holder.parentLayout.setOnClickListener {
-                    itemList.get(position).fait = !itemList.get(position).fait
+
+                holder.description.setText(item.description)
+
+
+                holder.checkBox.isChecked = item.getFait().equals(1)
+                holder.checkBox.setOnCheckedChangeListener { _, isChecked ->
+                    onChange?.invoke(item, isChecked)
                 }
-                holder.bind(itemList.get(position))
+
             }
         }
 
