@@ -1,4 +1,4 @@
-package com.example.sequence2
+package com.example.sequence3
 
 import android.os.Bundle
 import android.preference.CheckBoxPreference
@@ -7,7 +7,7 @@ import android.preference.Preference
 import android.preference.Preference.OnPreferenceChangeListener
 import android.preference.PreferenceActivity
 import android.widget.Toast
-import com.example.sequence2.api.Provider
+import com.example.sequence3.data.source.remote.api.Provider
 
 class GestionPreferences : PreferenceActivity(), OnPreferenceChangeListener {
     var cbp: CheckBoxPreference? = null

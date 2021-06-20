@@ -1,6 +1,6 @@
-package com.example.sequence2.model.responses
+package com.example.sequence3.data.source.remote.api.responses
 
-import com.example.sequence2.model.ListeToDo
+import com.example.sequence3.data.model.ListeToDo
 import com.google.gson.annotations.SerializedName
 
 data class GetListsResponse(

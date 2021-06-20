@@ -1,6 +1,6 @@
-package com.example.sequence2.model.responses
+package com.example.sequence3.data.source.remote.api.responses
 
-import com.example.sequence2.model.ItemToDo
+import com.example.sequence3.data.model.ItemToDo
 import com.google.gson.annotations.SerializedName
 
 data class AddItemResponse(
@@ -11,5 +11,5 @@ data class AddItemResponse(
     @SerializedName("status")
     val status: Int,
     @SerializedName("item")
-    val item: ItemToDo = ItemToDo()
+    val item: ItemResponse
 )

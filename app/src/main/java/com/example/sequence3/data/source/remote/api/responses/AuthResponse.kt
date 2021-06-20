@@ -1,4 +1,4 @@
-package com.example.sequence2.model.responses
+package com.example.sequence3.data.source.remote.api.responses
 
 import com.google.gson.annotations.SerializedName
 

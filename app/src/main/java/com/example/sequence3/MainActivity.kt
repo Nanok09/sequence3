@@ -1,4 +1,4 @@
-package com.example.sequence2
+package com.example.sequence3
 
 import android.annotation.SuppressLint
 import android.content.Intent
@@ -15,8 +15,9 @@ import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import com.example.sequence2.api.Provider
+import com.example.sequence3.data.source.remote.api.Provider
 import kotlinx.coroutines.*
 
 
@@ -32,6 +33,9 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     private var btnOK: Button? = null
     private var sp: SharedPreferences? = null
     private var editor: SharedPreferences.Editor? = null
+
+
+    private val viewModel by viewModels<MainViewModel>()
 
     private fun alerter(s: String) {
         Log.i(CAT, s)
@@ -69,6 +73,9 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         if(smartCastCheckBox != null){
             smartCastCheckBox.setOnClickListener(this)
         }
+
+
+
     }
 
     // display menu if method returns true
@@ -144,7 +151,9 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                     editor!!.commit()
                 }
 
-                login(edtPseudo!!.text.toString(), edtPass!!.text.toString())
+
+                newLogin(edtPseudo!!.text.toString(), edtPass!!.text.toString())
+//                login(edtPseudo!!.text.toString(), edtPass!!.text.toString())
 
 
             }
@@ -204,6 +213,35 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             } catch (e: Exception){
                 Log.i(CAT, "Error: " + e.message + pseudo + pass)
             }
+        }
+    }
+
+    private fun newLogin(login: String, pass: String){
+
+        viewModel.authenticate(login, pass)
+        viewModel.hash.observe(this) { viewState ->
+            when(viewState) {
+                is MainViewModel.ViewState.Hash -> {
+                    editor!!.putString("hash", viewState.hash)
+                    editor!!.commit()
+
+                    // Fabrication d'un bundle de données
+                    val bdl = Bundle()
+                    bdl.putString("string",login)
+                    //Changer d'activité
+                    val versChoixList: Intent
+                    // Intent explicite
+                    versChoixList = Intent(this@MainActivity, ChoixListActivity::class.java)
+                    // Ajout d'un bundle a l'intent
+                    versChoixList.putExtras(bdl)
+                    startActivity(versChoixList)
+                }
+                is MainViewModel.ViewState.Error -> {
+                    Toast.makeText(this@MainActivity, "${viewState.message}", Toast.LENGTH_SHORT)
+                        .show()
+                }
+            }
+
         }
     }
 

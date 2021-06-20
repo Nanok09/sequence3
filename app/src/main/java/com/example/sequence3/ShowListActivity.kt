@@ -1,4 +1,4 @@
-package com.example.sequence2
+package com.example.sequence3
 
 
 import android.content.SharedPreferences
@@ -14,13 +14,9 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.sequence2.adapter.ShowListRecyclerViewAdapter
-import com.example.sequence2.api.Provider
-import com.example.sequence2.model.ItemToDo
-import com.example.sequence2.model.ListeToDo
-import com.example.sequence2.model.ProfilListeToDo
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
+import com.example.sequence3.adapter.ShowListRecyclerViewAdapter
+import com.example.sequence3.data.source.remote.api.Provider
+import com.example.sequence3.data.model.ItemToDo
 import kotlinx.coroutines.*
 import java.lang.Exception
 
@@ -103,7 +99,7 @@ class ShowListActivity: AppCompatActivity(), View.OnClickListener {
 
         adapter = ShowListRecyclerViewAdapter(itemList!!, this)
         adapter!!.onChange = { item: ItemToDo, fait: Boolean,  ->
-            updateItem(id!!, hash!!, item.id, if (fait) 1 else 0)
+            updateItem(id!!, hash!!, item.id_remote!!, if (fait) 1 else 0)
         }
 
 
@@ -173,8 +169,22 @@ class ShowListActivity: AppCompatActivity(), View.OnClickListener {
                     if (addItemsResp.success){
                         Log.i(ChoixListActivity.CAT, "Success")
 
+                        val itemResp = addItemsResp.item
+                        val remoteId = itemResp.id
 
-                        val item: ItemToDo = addItemsResp.item
+
+
+
+                        val item: ItemToDo = ItemToDo(
+                            id_local = null,
+                            id_remote = remoteId,
+                            description = itemResp.label,
+                            url = itemResp.url!!,
+                            fait = itemResp.checked,
+                            listeToDoId = null,
+                            listeToDoLocalId = null,
+                            isUpdated = 0
+                        )
                         Log.i(ChoixListActivity.CAT, item.toString())
 
 
@@ -214,11 +224,30 @@ class ShowListActivity: AppCompatActivity(), View.OnClickListener {
                         Log.i(ChoixListActivity.CAT, "update item Success")
 
 
-                        val item: ItemToDo = updateItemResp.item
+
+
+                        val itemResp = updateItemResp.item
+                        val remoteId = itemResp.id
+
+
+
+                        val item: ItemToDo = ItemToDo(
+                            id_local = null,
+                            id_remote = remoteId,
+                            description = itemResp.label,
+                            url = itemResp.url!!,
+                            fait = itemResp.checked,
+                            listeToDoId = idList,
+                            listeToDoLocalId = null,
+                            isUpdated = 0
+                            )
+
+
+
                         Log.i(ChoixListActivity.CAT, item.toString())
 
                         for (item in adapter!!.itemList){
-                            if (item.id == idItem){
+                            if (item.id_remote == idItem){
                                 item.fait = fait
                             }
                         }

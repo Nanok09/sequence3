@@ -1,6 +1,5 @@
-package com.example.sequence2.adapter
+package com.example.sequence3.adapter
 
-import android.content.ClipData
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
@@ -9,9 +8,8 @@ import android.widget.CheckBox
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
-import com.example.sequence2.model.ItemToDo
-import com.example.sequence2.model.ListeToDo
-import com.example.sequence2.R
+import com.example.sequence3.data.model.ItemToDo
+import com.example.sequence3.R
 
 
 class ShowListRecyclerViewAdapter(
@@ -59,7 +57,7 @@ class ShowListRecyclerViewAdapter(
                 holder.description.setText(item.description)
 
 
-                holder.checkBox.isChecked = item.getFait().equals(1)
+                holder.checkBox.isChecked = item.fait.equals(1)
                 holder.checkBox.setOnCheckedChangeListener { _, isChecked ->
                     onChange?.invoke(item, isChecked)
                 }

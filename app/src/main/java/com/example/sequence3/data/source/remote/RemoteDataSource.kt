@@ -1,10 +1,15 @@
-package com.example.sequence2.api
+package com.example.sequence3.data.source.remote
 
-import com.example.sequence2.model.responses.*
+import com.example.sequence3.data.source.remote.api.responses.AddItemResponse
+import com.example.sequence3.data.source.remote.api.responses.AuthResponse
+import com.example.sequence3.data.source.remote.api.responses.GetItemsResponse
+import com.example.sequence3.data.source.remote.api.responses.GetListsResponse
+import com.example.sequence3.data.source.remote.api.Service
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-object Provider {
+class RemoteDataSource {
+
 
     private var BASE_URL = "http://tomnab.fr/todo-api/"
 
