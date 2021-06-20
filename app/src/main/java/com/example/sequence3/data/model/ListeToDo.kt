@@ -10,6 +10,7 @@ data class ListeToDo (
     var id: Int = 0,
     @SerializedName("label")
     var titreListToDo: String = "",
+    var login: String = ""
 
 ) {
 
