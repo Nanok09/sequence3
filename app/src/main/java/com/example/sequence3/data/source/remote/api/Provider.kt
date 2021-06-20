@@ -1,6 +1,6 @@
-package com.example.sequence2.api
+package com.example.sequence3.data.source.remote.api
 
-import com.example.sequence2.model.responses.*
+import com.example.sequence3.data.source.remote.api.responses.*
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
@@ -38,7 +38,7 @@ object Provider {
     }
 
     suspend fun updateItem(idList: Int, hash: String, idItem: Int, check: Int): AddItemResponse {
-        return service.updateItem(idList, idItem,hash, check)
+        return service.updateItem(idList, idItem, hash, check)
     }
 
 }

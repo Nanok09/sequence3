@@ -1,4 +1,4 @@
-package com.example.sequence2
+package com.example.sequence3
 
 import android.annotation.SuppressLint
 import android.content.Intent
@@ -16,7 +16,7 @@ import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.example.sequence2.api.Provider
+import com.example.sequence3.data.source.remote.api.Provider
 import kotlinx.coroutines.*
 
 

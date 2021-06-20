@@ -1,4 +1,4 @@
-package com.example.sequence2
+package com.example.sequence3
 
 
 import android.content.SharedPreferences
@@ -14,13 +14,9 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.sequence2.adapter.ShowListRecyclerViewAdapter
-import com.example.sequence2.api.Provider
-import com.example.sequence2.model.ItemToDo
-import com.example.sequence2.model.ListeToDo
-import com.example.sequence2.model.ProfilListeToDo
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
+import com.example.sequence3.ui.adapter.ShowListRecyclerViewAdapter
+import com.example.sequence3.data.source.remote.api.Provider
+import com.example.sequence3.data.model.ItemToDo
 import kotlinx.coroutines.*
 import java.lang.Exception
 

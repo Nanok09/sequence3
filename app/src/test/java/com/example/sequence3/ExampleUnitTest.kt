@@ -1,4 +1,4 @@
-package com.example.sequence2
+package com.example.sequence3
 
 import org.junit.Test
 
