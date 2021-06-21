@@ -10,6 +10,7 @@ import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -17,6 +18,7 @@ import com.example.sequence3.ui.adapter.RecyclerViewAdapter
 import com.example.sequence3.data.source.remote.api.Provider
 import com.example.sequence3.data.model.ListeToDo
 import com.example.sequence3.data.model.ProfilListeToDo
+import com.example.sequence3.ui.viewmodel.ChoixListViewModel
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.runBlocking
 import java.lang.Exception
@@ -29,8 +31,11 @@ class ChoixListActivity : AppCompatActivity(), View.OnClickListener {
     private var edtCreateToDo: EditText? = null
 
 
+    private var adapter: RecyclerViewAdapter? = null
 
 
+
+    private val viewModel by viewModels<ChoixListViewModel>()
 
 
 
@@ -59,10 +64,12 @@ class ChoixListActivity : AppCompatActivity(), View.OnClickListener {
         val hash = sp!!.getString("hash", "") //hash
 
 
+        val lists: MutableList<ListeToDo> = mutableListOf()
+
+        adapter = RecyclerViewAdapter(lists, this)
 
 
-        var toDolists = getToDoLists(hash!!)
-        Log.i(CAT, "ChoixListActivity: ${toDolists}")
+
 
 
 
@@ -71,9 +78,11 @@ class ChoixListActivity : AppCompatActivity(), View.OnClickListener {
 
 
         val recyclerView: RecyclerView = findViewById(R.id.recycler_view)
-        val adapter: RecyclerViewAdapter = RecyclerViewAdapter(toDolists, this)
         recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL ,false)
+
+
+
 
 
         edtCreateToDo = findViewById(R.id.edtCreateToDo)
@@ -81,29 +90,55 @@ class ChoixListActivity : AppCompatActivity(), View.OnClickListener {
         btnCreateTodo!!.setOnClickListener(this)
 
 
-    }
+        viewModel.lists.observe(this) {
+                viewState ->
+            when (viewState) {
+                is ChoixListViewModel.ViewState.Content -> {
+                    lists.clear()
+                    lists.addAll(viewState.lists)
+                    adapter?.notifyDataSetChanged()
+                    Log.i("EDPMR","Lists: ${viewState.lists}")
 
-    private fun getToDoLists(hash: String): MutableList<ListeToDo> {
-        return runBlocking {
-            try {
-                if (verifReseau()){
-                    val getListsResp = Provider.getLists(hash)
-                    Log.i(CAT, getListsResp.toString())
-                    if (getListsResp.success){
-                        return@runBlocking getListsResp.lists
-                    } else{
-                        Log.i(CAT, "Erreur de recuperation de liste")
-                    }
-                } else {
-                    Log.i(CAT, "pas de connexion")
                 }
-            } catch (e: Exception){
-                Log.i(CAT, "Erreur: " + e.message)
+                is ChoixListViewModel.ViewState.Error -> {
+                    Log.d(CAT, "erreur $this")
+                }
             }
-            return@runBlocking mutableListOf<ListeToDo>()
         }
 
+        getToDoLists(pseudo.toString(), hash!!)
+
     }
+
+    private fun getToDoLists(pseudo: String, hash: String){
+
+            Log.d(CAT, "appel getToDo")
+            viewModel.getToDoLists(pseudo, hash)
+
+
+
+    }
+
+//        return runBlocking {
+//            try {
+//                if (verifReseau()){
+//                    val getListsResp = Provider.getLists(hash)
+//                    Log.i(CAT, getListsResp.toString())
+//                    if (getListsResp.success){
+//                        return@runBlocking getListsResp.lists
+//                    } else{
+//                        Log.i(CAT, "Erreur de recuperation de liste")
+//                    }
+//                } else {
+//                    Log.i(CAT, "pas de connexion")
+//                }
+//            } catch (e: Exception){
+//                Log.i(CAT, "Erreur: " + e.message)
+//            }
+//            return@runBlocking mutableListOf<ListeToDo>()
+//        }
+
+
 
     private fun alerter(s: String?) {
         if (s != null) {
@@ -120,7 +155,7 @@ class ChoixListActivity : AppCompatActivity(), View.OnClickListener {
 
     override fun onStart(){
         super.onStart()
-        Log.i(CAT, "onStart")
+        Log.i(CAT, "onStart ChoixList")
         val profilListJson = sp!!.getString("profilList", "")
 
     }

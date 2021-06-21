@@ -8,7 +8,8 @@ import androidx.room.PrimaryKey
 data class ProfilListeToDo (
     @PrimaryKey
     var login: String = "",
-    var pass: String = ""
+    var pass: String = "",
+    var hash: String = ""
 )
 
 {

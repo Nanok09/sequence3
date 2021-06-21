@@ -11,12 +11,15 @@ import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.sequence3.ui.adapter.ShowListRecyclerViewAdapter
 import com.example.sequence3.data.source.remote.api.Provider
 import com.example.sequence3.data.model.ItemToDo
+import com.example.sequence3.ui.viewmodel.ChoixListViewModel
+import com.example.sequence3.ui.viewmodel.ShowListViewModel
 import kotlinx.coroutines.*
 import java.lang.Exception
 
@@ -48,6 +51,8 @@ class ShowListActivity: AppCompatActivity(), View.OnClickListener {
     //Recyclerview adapter
     private var adapter: ShowListRecyclerViewAdapter? = null
 
+    //ViewModel
+    private val viewModel by viewModels<ShowListViewModel>()
 
     //Helper function displays a toast and prints a log
     private fun alerter(s: String?) {
@@ -92,7 +97,9 @@ class ShowListActivity: AppCompatActivity(), View.OnClickListener {
         hash = sp!!.getString("hash", "")
 
         //Get items list via HTTP request
-        itemList  = getToDoItems(id!!, hash!!)
+        itemList  = mutableListOf()
+
+
 
 
 
@@ -111,7 +118,23 @@ class ShowListActivity: AppCompatActivity(), View.OnClickListener {
         showlistRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL ,false)
 
 
+        viewModel.items.observe(this) {
+                viewState ->
+            when (viewState) {
+                is ShowListViewModel.ViewState.Content -> {
+                    itemList?.clear()
+                    itemList?.addAll(viewState.items)
+                    adapter?.notifyDataSetChanged()
+                    Log.i("EDPMR","Lists: ${viewState.items}")
 
+                }
+                is ShowListViewModel.ViewState.Error -> {
+                    Log.d(ChoixListActivity.CAT, "erreur $this")
+                }
+            }
+        }
+
+        getToDoItems(id!!, hash!!)
     }
 
     override fun onStart() {
@@ -133,15 +156,20 @@ class ShowListActivity: AppCompatActivity(), View.OnClickListener {
 
     }
 
-    private fun getToDoItems(id: Int, hash: String) : MutableList<ItemToDo>{
-        TODO()
+    private fun getToDoItems(id: Int, hash: String){
+
+        Log.i("EDPMR","appel getToDoItems")
+        viewModel.getItems(id, hash)
+
     }
-    private fun addItem(id: Int, hash: String, description: String){
-        TODO()
-    }
+//    private fun addItem(id: Int, hash: String, description: String){
+//        TODO()
+//    }
 
     private fun updateItem(idList: Int, hash: String, idItem: Int, fait: Int) {
-        TODO()
+
+        viewModel.updateItem(idList, hash, idItem, fait)
+
     }
 
 //    private fun getToDoItems(id: Int, hash: String): MutableList<ItemToDo> {
@@ -168,42 +196,42 @@ class ShowListActivity: AppCompatActivity(), View.OnClickListener {
 //
 //    }
 
-//    private fun addItem(id: Int, hash: String, description: String){
-//
-//
-//        activityScope.launch {
-//            try {
-//                if (verifReseau()){
-//                    val addItemsResp = Provider.addItem(id, hash, description)
-//                    Log.i(ChoixListActivity.CAT, addItemsResp.toString())
-//
-//                    if (addItemsResp.success){
-//                        Log.i(ChoixListActivity.CAT, "Success")
-//
-//
-//                        val item: ItemToDo = addItemsResp.item
-//                        Log.i(ChoixListActivity.CAT, item.toString())
-//
-//
-//                        adapter!!.itemList.add(item)
-//                        adapter!!.notifyDataSetChanged()
-//
-//
-//
-//
-//
-//
-//                    } else{
-//                        Log.i(ChoixListActivity.CAT, "Erreur de l ajout de l item")
-//                    }
-//                }else{
-//                    Log.i(ChoixListActivity.CAT, "Pas de connexion")
-//                }
-//            } catch (e: Exception){
-//                Log.i(ChoixListActivity.CAT, "Erreur: ${e.message}")
-//            }
-//        }
-//    }
+    private fun addItem(id: Int, hash: String, description: String){
+
+
+        activityScope.launch {
+            try {
+                if (verifReseau()){
+                    val addItemsResp = Provider.addItem(id, hash, description)
+                    Log.i(ChoixListActivity.CAT, addItemsResp.toString())
+
+                    if (addItemsResp.success){
+                        Log.i(ChoixListActivity.CAT, "Success")
+
+
+                        val item: ItemToDo = addItemsResp.item
+                        Log.i(ChoixListActivity.CAT, item.toString())
+
+
+                        adapter!!.itemList.add(item)
+                        adapter!!.notifyDataSetChanged()
+
+
+
+
+
+
+                    } else{
+                        Log.i(ChoixListActivity.CAT, "Erreur de l ajout de l item")
+                    }
+                }else{
+                    Log.i(ChoixListActivity.CAT, "Pas de connexion")
+                }
+            } catch (e: Exception){
+                Log.i(ChoixListActivity.CAT, "Erreur: ${e.message}")
+            }
+        }
+    }
 
 //    private fun updateItem(idList: Int, hash: String, idItem: Int, fait: Int){
 //

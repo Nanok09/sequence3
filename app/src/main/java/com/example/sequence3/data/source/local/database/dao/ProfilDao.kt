@@ -14,4 +14,7 @@ interface ProfilDao {
 
     @Query("SELECT * FROM profil_list_to_do")
     suspend fun getProfils(): MutableList<ProfilListeToDo>
+
+    @Query("SELECT * FROM profil_list_to_do WHERE login=:login AND pass =:pass")
+    suspend fun authenticate(login: String, pass: String): ProfilListeToDo
 }

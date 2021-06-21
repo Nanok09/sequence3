@@ -17,6 +17,9 @@ interface ListDao {
     @Query("SELECT * FROM list_to_do")
     suspend fun getLists(): MutableList<ListeToDo>
 
+    @Query("SELECT * FROM list_to_do WHERE login=:login")
+    suspend fun getLists(login: String): MutableList<ListeToDo>
+
     @Query("SELECT * FROM list_to_do WHERE id=:idList")
     suspend fun getList(idList: Int): ListeToDo
 }

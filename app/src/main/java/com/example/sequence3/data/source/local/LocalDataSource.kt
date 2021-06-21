@@ -22,15 +22,21 @@ class LocalDataSource(
 
 
     suspend fun saveOrUpdateItems(items: MutableList<ItemToDo>) = itemDao.saveOrUpdateItems(items)
+    suspend fun saveOrUpdateItem(item: ItemToDo) = itemDao.saveOrUpdateItem(item)
     suspend fun getItem(idItem: Int): ItemToDo? = itemDao.getItem(idItem)
     suspend fun getItems(idList: Int) = itemDao.getItems(idList)
+    suspend fun getNotUpdatedItems(): MutableList<ItemToDo> = itemDao.getNotUpdatedItem()
 
-    suspend fun saveOrUpdateLists(lists: MutableList<ListeToDo>) = listDao.saveOrUpdateLists(lists)
-    suspend fun getList(idList: Int) = listDao.getList(idList)
-    suspend fun getLists() = listDao.getLists()
+
+        suspend fun saveOrUpdateLists(lists: MutableList<ListeToDo>) = listDao.saveOrUpdateLists(lists)
+    suspend fun getList(idList: Int): ListeToDo = listDao.getList(idList)
+    suspend fun getLists(): MutableList<ListeToDo> = listDao.getLists()
+    suspend fun getLists(login: String): MutableList<ListeToDo> = listDao.getLists(login)
 
 
     suspend fun saveOrUpdateProfil(profil: ProfilListeToDo) = profilDao.saveOrUpdateProfil(profil)
+    suspend fun authenticate(login: String, pass: String) = profilDao.authenticate(login, pass)
     suspend fun getProfils() = profilDao.getProfils()
 
-}
+    }
+

@@ -16,6 +16,7 @@ import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.example.sequence3.data.ToDoRepository
 import com.example.sequence3.data.source.remote.api.Provider
 import kotlinx.coroutines.*
 
@@ -25,6 +26,9 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         SupervisorJob() +
                 Dispatchers.Main
     )
+    private val todoRepository by lazy{
+        ToDoRepository.newInstance(application)
+    }
     private val CAT = "EDPMR"
     private var edtPseudo: EditText? = null
     private var edtPass: EditText? = null
@@ -45,31 +49,14 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         setContentView(R.layout.activity_main)
         Log.i(CAT, "onCreate")
 
-        //get ui elements
-        btnOK = findViewById(R.id.btnOK)
-        edtPseudo = findViewById(R.id.pseudo)
-        edtPass = findViewById(R.id.pass)
-        cbRemember = findViewById(R.id.cbRemember)
+
+        getUIElements()
+        initializeSp()
+        setOnClickListeners()
 
 
-        //initialize sp and editor
-        sp = PreferenceManager.getDefaultSharedPreferences(this)
-        val smartCastSp = sp
-        if (smartCastSp != null){
-            editor = smartCastSp.edit()
-        }
-
-
-        //set on click listeners
-        val smartCastBtn = btnOK
-        if(smartCastBtn != null){
-            smartCastBtn.setOnClickListener(this)
-        }
-        val smartCastCheckBox = cbRemember
-        if(smartCastCheckBox != null){
-            smartCastCheckBox.setOnClickListener(this)
-        }
     }
+
 
     // display menu if method returns true
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -77,7 +64,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         menuInflater.inflate(R.menu.menu, menu)
         return true
     }
-
     // called upon item selection. returns true if item is selected
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         val id = item.itemId
@@ -95,11 +81,10 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         super.onResume()
         Log.i(CAT, "onResume")
 
-        btnOK?.isEnabled = verifReseau()
-
-
+//        btnOK?.isEnabled = verifReseau()
 
     }
+
 
     override fun onStart() {
         super.onStart()
@@ -174,35 +159,27 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 
         activityScope.launch{
             try{
-                if(verifReseau()){
-                    val authResp = Provider.authenticate(pseudo, pass)
-                    Log.i(CAT, authResp.toString())
-                    if (authResp.success){
-                        editor!!.putString("hash", authResp.hash)
-                        editor!!.commit()
+                val profil = todoRepository.authenticate(pseudo, pass)
+                val hash = profil?.hash
+                Log.d("EDPMR", hash.toString())
+                editor!!.putString("hash", hash)
+                editor!!.commit()
 
-                        // Fabrication d'un bundle de données
-                        val bdl = Bundle()
-                        bdl.putString("string",pseudo)
-                        //Changer d'activité
-                        val versChoixList: Intent
-                        // Intent explicite
-                        versChoixList = Intent(this@MainActivity, ChoixListActivity::class.java)
-                        // Ajout d'un bundle a l'intent
-                        versChoixList.putExtras(bdl)
-                        startActivity(versChoixList)
-                    }
-                    else{
-                        Log.i(CAT, "authentification failed")
-                        alerter("authentification failed")
-                    }
-                } else{
-                    Log.i(CAT, "no connection")
-                    alerter("no connection")
-                }
+                // Fabrication d'un bundle de données
+                val bdl = Bundle()
+                bdl.putString("string",pseudo)
+                //Changer d'activité
+                val versChoixList: Intent
+                // Intent explicite
+                versChoixList = Intent(this@MainActivity, ChoixListActivity::class.java)
+                // Ajout d'un bundle a l'intent
+                versChoixList.putExtras(bdl)
+                startActivity(versChoixList)
+
 
             } catch (e: Exception){
-                Log.i(CAT, "Error: " + e.message + pseudo + pass)
+                Log.d(CAT, "Erreur requete: ${e.message}")
+                alerter(e.message.toString())
             }
         }
     }
@@ -228,6 +205,34 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         }
         Log.i(CAT, sType)
         return bStatut
+    }
+
+    fun getUIElements(){
+        //get ui elements
+        btnOK = findViewById(R.id.btnOK)
+        edtPseudo = findViewById(R.id.pseudo)
+        edtPass = findViewById(R.id.pass)
+        cbRemember = findViewById(R.id.cbRemember)
+    }
+    fun initializeSp(){
+        //initialize sp and editor
+        sp = PreferenceManager.getDefaultSharedPreferences(this)
+        val smartCastSp = sp
+        if (smartCastSp != null){
+            editor = smartCastSp.edit()
+        }
+    }
+    fun setOnClickListeners(){
+
+        //set on click listeners
+        val smartCastBtn = btnOK
+        if(smartCastBtn != null){
+            smartCastBtn.setOnClickListener(this)
+        }
+        val smartCastCheckBox = cbRemember
+        if(smartCastCheckBox != null){
+            smartCastCheckBox.setOnClickListener(this)
+        }
     }
 
 

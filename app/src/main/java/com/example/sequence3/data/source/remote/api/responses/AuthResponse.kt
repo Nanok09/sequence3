@@ -1,5 +1,6 @@
 package com.example.sequence3.data.source.remote.api.responses
 
+import com.example.sequence3.data.model.ProfilListeToDo
 import com.google.gson.annotations.SerializedName
 
 data class AuthResponse(
@@ -12,4 +13,12 @@ data class AuthResponse(
     val status: Int,
     @SerializedName("hash")
     val hash: String
-)
+) {
+    fun toProfilListeToDo(login: String, pass: String):  ProfilListeToDo{
+        return ProfilListeToDo(
+            login = login,
+            pass = pass,
+            hash = hash
+        )
+    }
+}
