@@ -1,10 +1,11 @@
 package com.example.sequence3.data.model
 
+import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
 
+@Entity(tableName = "list_to_do")
 data class ListeToDo (
-
 
     @PrimaryKey
     var id: Int = 0,

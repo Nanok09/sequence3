@@ -1,6 +1,12 @@
 package com.example.sequence3.data.model
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
+
+@Entity(tableName = "profil_list_to_do")
 data class ProfilListeToDo (
+    @PrimaryKey
     var login: String = "",
     var pass: String = ""
 )

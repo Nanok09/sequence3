@@ -133,112 +133,123 @@ class ShowListActivity: AppCompatActivity(), View.OnClickListener {
 
     }
 
-    private fun getToDoItems(id: Int, hash: String): MutableList<ItemToDo> {
-        return runBlocking {
-            try {
-                if (verifReseau()){
-                    val getItemsResp = Provider.getItems(id, hash)
-                    Log.i(ChoixListActivity.CAT, getItemsResp.toString())
-
-
-                    if (getItemsResp.success){
-                        return@runBlocking getItemsResp.items
-                    } else{
-                        Log.i(ChoixListActivity.CAT, "Erreur de recuperation des items")
-                    }
-                } else {
-                    Log.i(ChoixListActivity.CAT, "pas de connexion")
-                }
-            } catch (e: Exception){
-                Log.i(ChoixListActivity.CAT, "Erreur: " + e.message)
-            }
-            return@runBlocking mutableListOf<ItemToDo>()
-        }
-
+    private fun getToDoItems(id: Int, hash: String) : MutableList<ItemToDo>{
+        TODO()
     }
-
     private fun addItem(id: Int, hash: String, description: String){
-
-
-        activityScope.launch {
-            try {
-                if (verifReseau()){
-                    val addItemsResp = Provider.addItem(id, hash, description)
-                    Log.i(ChoixListActivity.CAT, addItemsResp.toString())
-
-                    if (addItemsResp.success){
-                        Log.i(ChoixListActivity.CAT, "Success")
-
-
-                        val item: ItemToDo = addItemsResp.item
-                        Log.i(ChoixListActivity.CAT, item.toString())
-
-
-                        adapter!!.itemList.add(item)
-                        adapter!!.notifyDataSetChanged()
-
-
-
-
-
-
-                    } else{
-                        Log.i(ChoixListActivity.CAT, "Erreur de l ajout de l item")
-                    }
-                }else{
-                    Log.i(ChoixListActivity.CAT, "Pas de connexion")
-                }
-            } catch (e: Exception){
-                Log.i(ChoixListActivity.CAT, "Erreur: ${e.message}")
-            }
-        }
+        TODO()
     }
 
-    private fun updateItem(idList: Int, hash: String, idItem: Int, fait: Int){
-
-        activityScope.launch {
-            try {
-                if (verifReseau()){
-
-
-
-
-                    val updateItemResp = Provider.updateItem(idList, hash, idItem, fait)
-                    Log.i(ChoixListActivity.CAT, updateItemResp.toString())
-
-                    if (updateItemResp.success){
-                        Log.i(ChoixListActivity.CAT, "update item Success")
-
-
-                        val item: ItemToDo = updateItemResp.item
-                        Log.i(ChoixListActivity.CAT, item.toString())
-
-                        for (item in adapter!!.itemList){
-                            if (item.id == idItem){
-                                item.fait = fait
-                            }
-                        }
-
-                        adapter!!.notifyDataSetChanged()
-
-
-
-
-
-
-                    } else{
-                        Log.i(ChoixListActivity.CAT, "Erreur de l ajout de l item")
-                    }
-                } else{
-                    Log.i(ChoixListActivity.CAT, "Pas de connexion")
-                }
-            } catch (e: Exception){
-                Log.i(ChoixListActivity.CAT, "Erreur: ${e.message}")
-            }
-
-
-        }
+    private fun updateItem(idList: Int, hash: String, idItem: Int, fait: Int) {
+        TODO()
     }
+
+//    private fun getToDoItems(id: Int, hash: String): MutableList<ItemToDo> {
+//        return runBlocking {
+//            try {
+//                if (verifReseau()){
+//                    val getItemsResp = Provider.getItems(id, hash)
+//                    Log.i(ChoixListActivity.CAT, getItemsResp.toString())
+//
+//
+//                    if (getItemsResp.success){
+//                        return@runBlocking getItemsResp.items
+//                    } else{
+//                        Log.i(ChoixListActivity.CAT, "Erreur de recuperation des items")
+//                    }
+//                } else {
+//                    Log.i(ChoixListActivity.CAT, "pas de connexion")
+//                }
+//            } catch (e: Exception){
+//                Log.i(ChoixListActivity.CAT, "Erreur: " + e.message)
+//            }
+//            return@runBlocking mutableListOf<ItemToDo>()
+//        }
+//
+//    }
+
+//    private fun addItem(id: Int, hash: String, description: String){
+//
+//
+//        activityScope.launch {
+//            try {
+//                if (verifReseau()){
+//                    val addItemsResp = Provider.addItem(id, hash, description)
+//                    Log.i(ChoixListActivity.CAT, addItemsResp.toString())
+//
+//                    if (addItemsResp.success){
+//                        Log.i(ChoixListActivity.CAT, "Success")
+//
+//
+//                        val item: ItemToDo = addItemsResp.item
+//                        Log.i(ChoixListActivity.CAT, item.toString())
+//
+//
+//                        adapter!!.itemList.add(item)
+//                        adapter!!.notifyDataSetChanged()
+//
+//
+//
+//
+//
+//
+//                    } else{
+//                        Log.i(ChoixListActivity.CAT, "Erreur de l ajout de l item")
+//                    }
+//                }else{
+//                    Log.i(ChoixListActivity.CAT, "Pas de connexion")
+//                }
+//            } catch (e: Exception){
+//                Log.i(ChoixListActivity.CAT, "Erreur: ${e.message}")
+//            }
+//        }
+//    }
+
+//    private fun updateItem(idList: Int, hash: String, idItem: Int, fait: Int){
+//
+//        activityScope.launch {
+//            try {
+//                if (verifReseau()){
+//
+//
+//
+//
+//                    val updateItemResp = Provider.updateItem(idList, hash, idItem, fait)
+//                    Log.i(ChoixListActivity.CAT, updateItemResp.toString())
+//
+//                    if (updateItemResp.success){
+//                        Log.i(ChoixListActivity.CAT, "update item Success")
+//
+//
+//                        val item: ItemToDo = updateItemResp.item
+//                        Log.i(ChoixListActivity.CAT, item.toString())
+//
+//                        for (item in adapter!!.itemList){
+//                            if (item.id == idItem){
+//                                item.fait = fait
+//                            }
+//                        }
+//
+//                        adapter!!.notifyDataSetChanged()
+//
+//
+//
+//
+//
+//
+//                    } else{
+//                        Log.i(ChoixListActivity.CAT, "Erreur de l ajout de l item")
+//                    }
+//                } else{
+//                    Log.i(ChoixListActivity.CAT, "Pas de connexion")
+//                }
+//            } catch (e: Exception){
+//                Log.i(ChoixListActivity.CAT, "Erreur: ${e.message}")
+//            }
+//
+//
+//        }
+//    }
 
 
     fun verifReseau(): Boolean {

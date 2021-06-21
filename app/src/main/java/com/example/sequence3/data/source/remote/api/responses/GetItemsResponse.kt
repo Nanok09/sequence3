@@ -11,5 +11,5 @@ data class GetItemsResponse(
     @SerializedName("status")
     val status: Int,
     @SerializedName("items")
-    val items: MutableList<ItemToDo> = mutableListOf<ItemToDo>()
+    val items: MutableList<ItemResponse>
 )

@@ -11,8 +11,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.sequence3.data.model.ProfilListeToDo
 import com.example.sequence3.R
 import com.example.sequence3.ShowListActivity
+import com.example.sequence3.data.model.ListeToDo
 
-class RecyclerViewAdapter(private val profilListeToDo: ProfilListeToDo, private val mContext: Context) :
+class RecyclerViewAdapter(
+    val toDoLists: MutableList<ListeToDo>,
+    private val mContext: Context) :
     RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder>() {
 
 
@@ -48,18 +51,18 @@ class RecyclerViewAdapter(private val profilListeToDo: ProfilListeToDo, private 
                 holder.parentLayout.setOnClickListener {
                     val toShowListAct: Intent
                     toShowListAct = Intent(mContext, ShowListActivity::class.java)
-                    toShowListAct.putExtra("id", profilListeToDo.mesListeToDo[position].id)
+                    toShowListAct.putExtra("id", toDoLists[position].id)
                     toShowListAct.putExtra("position", position)
                     mContext.startActivity(toShowListAct)
                 }
                 // Get element from the dataset at this position, replace the contents with that element
-                holder.bind(profilListeToDo.mesListeToDo[position].titreListToDo)
+                holder.bind(toDoLists[position].titreListToDo)
             }
 
         }
     }
 
     override fun getItemCount(): Int {
-        return profilListeToDo.mesListeToDo.size
+        return toDoLists.size
     }
 }
